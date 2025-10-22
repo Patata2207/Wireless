@@ -1,16 +1,43 @@
 package com.example.wireless
 
+import android.Manifest
+import android.app.AlertDialog
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class DetalleActivity : AppCompatActivity() {
 
     private lateinit var txtDetalle: TextView
+    private lateinit var btnSolicitarPermiso: Button
 
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun solicitarPermiso() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_WIFI_STATE,
+            ),
+            1
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -22,9 +49,30 @@ class DetalleActivity : AppCompatActivity() {
         }
 
         txtDetalle = findViewById(R.id.txtDetalle)
+        btnSolicitarPermiso = findViewById(R.id.btnSolicitarPermiso)
 
         val recibido = intent.getStringExtra("EXTRA_TEXTO").orEmpty()
         txtDetalle.text = recibido
-    }
-}
+
+
+        btnSolicitarPermiso.setOnClickListener {
+            val alerta = AlertDialog.Builder(this)
+                .setTitle("¿Por qué pedimos este permiso?")
+                .setMessage("Necesitamos acceso a ubicación para escanear dispositivos cercanos vía Bluetooth.")
+                .setPositiveButton("Continuar") { _, _ ->
+                    solicitarPermiso()
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+
+            alerta.setOnDismissListener{
+                val intent = Intent(this, BluetoothActivity::class.java)
+                startActivity(intent)
+            }
+        }}}
+
+
+
+
+
 
